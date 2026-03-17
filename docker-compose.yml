@@ -1,0 +1,77 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main-slim
+    container_name: open-webui
+    ports:
+      - "8080:8080"
+    volumes:
+      - /root/my-docker-data/open-webui:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+    depends_on:
+      - ollama
+      - mcpo
+    restart: unless-stopped
+
+  chrome:
+    image: zenika/alpine-chrome:with-puppeteer
+    container_name: chrome
+    shm_size: 2gb
+    command:
+      - chromium-browser
+      - --no-sandbox
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-host=0.0.0.0
+      - --remote-debugging-port=9222
+      - --remote-allow-origins=*
+      - --disable-gpu
+      - --headless
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "9222:9222"
+    restart: unless-stopped
+
+  mcpo:
+    image: ghcr.io/open-webui/mcpo:main
+    container_name: mcpo
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./mcpo-config.json:/app/config.json:ro
+    environment:
+      - MCPO_API_KEY=${MCPO_API_KEY}
+    command:
+      [
+        "--config",
+        "/app/config.json",
+        "--port",
+        "8000",
+        "--api-key",
+        "${MCPO_API_KEY}",
+      ]
+    depends_on:
+      - chrome
+    restart: unless-stopped
+
+volumes:
+  ollama:
+    external: true
+    name: ollama

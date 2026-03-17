@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+        "memory": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-memory"]
+        },
+        "time": {
+            "command": "uvx",
+            "args": ["mcp-server-time", "--local-timezone=Asia/Shanghai"],
+            "disabledTools": ["convert_time"]
+        },
+        "chrome-devtools": {
+            "command": "npx",
+            "args": ["-y", "chrome-devtools-mcp@latest", "--browser-url=http://192.168.11.41:9222"]
+        }
+    }
+}
