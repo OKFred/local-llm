@@ -11,7 +11,7 @@
         },
         "chrome-devtools": {
             "command": "npx",
-            "args": ["-y", "chrome-devtools-mcp@latest", "--browser-url=http://192.168.11.41:9222"]
+            "args": ["-y", "chrome-devtools-mcp@latest", "--browser-url=http://chrome.lan:9222"]
         }
     }
 }
